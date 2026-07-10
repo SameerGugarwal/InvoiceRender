@@ -7,11 +7,19 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173', // Local frontend
+  'https://invoicerender-frontend.onrender.com' // Live frontend URL
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173', // Local frontend
-    'https://invoicerender-frontend.onrender.com/' // Live frontend URL
-  ],
+  // Browsers send the Origin header without a trailing slash;
+  // normalize both sides so a stray "/" in the list can't break CORS
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // curl, server-to-server, health checks
+    const normalized = origin.replace(/\/+$/, '');
+    callback(null, allowedOrigins.some(o => o.replace(/\/+$/, '') === normalized));
+  },
   methods: ['GET', 'POST'],
   credentials: true
 }));
