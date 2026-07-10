@@ -1,6 +1,6 @@
 export const puppeteerLaunchArgs = {
   headless: true,
-  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || (process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : undefined),
   args: [
     '--no-sandbox',
     '--disable-setuid-sandbox',
