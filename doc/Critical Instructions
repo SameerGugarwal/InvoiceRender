@@ -1,0 +1,30 @@
+# Critical Instructions for Antigravity (Implementation Guide)
+
+**Important Context for Antigravity:** I am providing the 3 original HTML utility templates (EDF Electricity, Kenya Power, Water Board Nicosia) in the following directory: `/doc/templets/`. You must use these exact templates for the backend PDF generation logic.
+
+---
+
+## 1. Strict Form Validation (Frontend)
+To ensure the generated PDFs map perfectly 1:1 with the original templates without breaking the layout or leaving blank spaces, the frontend (Vanilla JS) MUST implement strict input validations before allowing the user to submit the form.
+
+* **EDF Electricity (France):** * `Point of Delivery (PDL)`: Must be exactly **14 digits**.
+  * `Client Number`: Must be exactly **10 digits**.
+* **Water Board Nicosia (Cyprus):** * `Account Reference String`: Must strictly match the format `XXXX/X/XXXXX/X/X` (e.g., 8941/7/17588/0/0).
+* **Global Date Fields:** * All date inputs (Invoice Date, Due Date, Billing Periods, etc.) must enforce the `DD/MM/YYYY` format.
+* **Action:** Disable the "Generate PDF" button or show inline error messages if these validation rules are not met.
+
+---
+
+## 2. Fonts, Assets & Puppeteer Settings (Original Look)
+The generated PDF must look 100% authentic and identical to the original HTML layout. 
+
+* **Asset & Logo Handling:** The templates in `/doc/templets/` rely on specific logos and styling. When Puppeteer generates the PDF, external image links often fail to load in time or are blocked. 
+  * **Requirement:** Ensure all logos and critical images inside the HTML templates are either converted directly into **Base64 embedded strings** (`<img src="data:image/png;base64,...">`) OR correctly served and linked as local static assets on the Express server before handing the HTML to Puppeteer.
+* **Puppeteer Configuration:** To capture the exact styling, backgrounds, and full-bleed design, you MUST apply these exact settings in your Puppeteer script:
+
+  ```javascript
+  await page.pdf({
+      format: 'A4',
+      printBackground: true, // CRITICAL: Without this, background colors and gradients will be white/transparent.
+      margin: { top: '0px', right: '0px', bottom: '0px', left: '0px' } // No margins for full bleed rendering
+  });

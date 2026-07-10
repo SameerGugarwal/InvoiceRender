@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-heading bg-surface antialiased;
+  }
+}
+
+@layer components {
+  /* Form Input Styling */
+  .form-input {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-input text-sm text-heading
+           bg-white placeholder-muted
+           transition-all duration-200 ease-in-out
+           focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500;
+  }
+
+  .form-input.error {
+    @apply border-red-400 focus:ring-red-400/30 focus:border-red-400;
+  }
+
+  .form-label {
+    @apply block text-xs font-medium text-muted uppercase tracking-wider mb-1.5;
+  }
+
+  .error-message {
+    @apply text-xs text-red-500 mt-1 hidden;
+  }
+
+  .error-message.visible {
+    @apply block;
+  }
+
+  /* Section Card */
+  .section-card {
+    @apply bg-white rounded-2xl shadow-card p-6 md:p-8;
+  }
+
+  .section-title {
+    @apply text-lg font-bold text-heading mb-6 flex items-center gap-2;
+  }
+
+  .section-title .icon {
+    @apply w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm;
+  }
+
+  /* Template Selection Cards */
+  .template-card {
+    @apply relative cursor-pointer border-2 border-gray-200 rounded-2xl p-5
+           transition-all duration-300 ease-in-out bg-white
+           hover:shadow-card-hover hover:scale-[1.02] hover:border-gray-300;
+  }
+
+  .template-card.active {
+    @apply border-primary-600 bg-primary-50/50 shadow-card-hover;
+  }
+
+  .template-card .check-badge {
+    @apply absolute top-3 right-3 w-6 h-6 rounded-full bg-primary-600 text-white
+           flex items-center justify-center text-xs opacity-0 scale-75
+           transition-all duration-300;
+  }
+
+  .template-card.active .check-badge {
+    @apply opacity-100 scale-100;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    @apply w-full md:w-auto px-8 py-3.5 bg-primary-600 text-white font-semibold text-base
+           rounded-xl shadow-lg shadow-primary-600/25
+           transition-all duration-300 ease-in-out
+           hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-700/30 hover:-translate-y-0.5
+           active:translate-y-0 active:shadow-md
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-lg;
+  }
+
+  .btn-primary .spinner {
+    @apply inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2;
+  }
+
+  /* Preview Button */
+  .btn-preview {
+    @apply text-xs font-medium text-primary-600 hover:text-primary-700 
+           transition-colors duration-200 flex items-center gap-1;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4
+           opacity-0 pointer-events-none transition-opacity duration-300;
+  }
+
+  .modal-overlay.open {
+    @apply opacity-100 pointer-events-auto;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[85vh] overflow-y-auto
+           transform scale-95 transition-transform duration-300;
+  }
+
+  .modal-overlay.open .modal-content {
+    @apply scale-100;
+  }
+
+  /* Conditional Section Animation */
+  .conditional-section {
+    @apply overflow-hidden transition-all duration-500 ease-in-out;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .conditional-section.visible {
+    max-height: 2000px;
+    opacity: 1;
+  }
+}

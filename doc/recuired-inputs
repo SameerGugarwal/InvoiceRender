@@ -1,0 +1,72 @@
+1. Shared / Global Fields (Rendered for all templates)
+Customer & Location Details:
+
+Customer Full Name
+
+Customer Address - Street / P.O. Box
+
+Customer Address - City
+
+Customer Address - Postal Code
+
+Billing & Dates:
+
+Invoice / Bill Number
+
+Invoice Issue Date
+
+Billing Period Start Date
+
+Billing Period End Date
+
+Payment Due Date
+
+Financials:
+
+Previous Balance
+
+Payments Received
+
+Taxes / VAT Rate (%)
+
+Taxes / VAT Amount
+
+Total Amount Due
+
+2. Meter & Consumption Fields (Rendered for Kenya Power & Nicosia)
+Meter Number
+
+Exact Meter Reading Date
+
+Previous Meter Reading
+
+Current Meter Reading
+
+Total Consumption Units (kWh or m³)
+
+3. Template-Specific Fields (Rendered conditionally)
+If "EDF Electricity" is selected:
+
+Client Number (10 digits)
+
+Account Number
+
+Point of Delivery / PDL Number (14 digits)
+
+Subscribed Power (e.g., 9 kVA)
+
+Tariff Option (e.g., Base)
+
+Reading Type (Estimated or Actual)
+
+If "Kenya Power" is selected:
+
+Account Number
+
+Tariff Category (e.g., Domestic)
+
+If "Water Board Nicosia" is selected:
+
+Account Reference String (e.g., 8941/7/17588/0/0)
+
+Tariff / Pricing Code

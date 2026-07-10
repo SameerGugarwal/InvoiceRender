@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvoiceRender – Utility Bill PDF Generator</title>
+  <meta name="description" content="Generate pixel-perfect, indexable PDF utility bills for EDF, Kenya Power, and Water Board Nicosia." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%232563EB'/><text x='16' y='22' font-size='18' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>IR</text></svg>" />
+  <script type="module" crossorigin src="/assets/index-E6vFq7Li.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bcuct4fs.css">
+</head>
+<body class="min-h-screen">
+
+  <!-- ============================================= -->
+  <!-- SECTION A: Sticky Header                       -->
+  <!-- ============================================= -->
+  <header id="app-header" class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center shadow-md shadow-primary-600/30">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-heading leading-tight">InvoiceRender</h1>
+          <p class="text-[10px] text-muted font-medium uppercase tracking-widest">PDF Generator</p>
+        </div>
+      </div>
+      <div class="hidden sm:flex items-center gap-2 text-xs text-muted">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        Ready
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- ============================================= -->
+    <!-- SECTION B: Global Fields                      -->
+    <!-- ============================================= -->
+
+    <!-- Customer & Location Details -->
+    <section class="section-card">
+      <h2 class="section-title">
+        <span class="icon bg-indigo-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </span>
+        Customer &amp; Location Details
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="form-label" for="customer_name">Customer Full Name</label>
+          <input type="text" id="customer_name" class="form-input" placeholder="e.g. Jean Dupont" data-field="customer_name" />
+        </div>
+        <div>
+          <label class="form-label" for="customer_street">Street / P.O. Box</label>
+          <input type="text" id="customer_street" class="form-input" placeholder="e.g. 12 Rue de la Paix" data-field="customer_street" />
+        </div>
+        <div>
+          <label class="form-label" for="customer_city">City</label>
+          <input type="text" id="customer_city" class="form-input" placeholder="e.g. Paris" data-field="customer_city" />
+        </div>
+        <div>
+          <label class="form-label" for="customer_postal">Postal Code</label>
+          <input type="text" id="customer_postal" class="form-input" placeholder="e.g. 75001" data-field="customer_postal" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Billing & Dates -->
+    <section class="section-card">
+      <h2 class="section-title">
+        <span class="icon bg-amber-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </span>
+        Billing &amp; Dates
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div>
+          <label class="form-label" for="invoice_number">Invoice / Bill Number</label>
+          <input type="text" id="invoice_number" class="form-input" placeholder="e.g. INV-20240101" data-field="invoice_number" />
+        </div>
+        <div>
+          <label class="form-label" for="invoice_date">Invoice Issue Date</label>
+          <input type="text" id="invoice_date" class="form-input" placeholder="DD/MM/YYYY" data-field="invoice_date" data-validate="date" />
+          <p class="error-message" id="invoice_date_error">Must be DD/MM/YYYY format</p>
+        </div>
+        <div>
+          <label class="form-label" for="billing_start">Billing Period Start</label>
+          <input type="text" id="billing_start" class="form-input" placeholder="DD/MM/YYYY" data-field="billing_start" data-validate="date" />
+          <p class="error-message" id="billing_start_error">Must be DD/MM/YYYY format</p>
+        </div>
+        <div>
+          <label class="form-label" for="billing_end">Billing Period End</label>
+          <input type="text" id="billing_end" class="form-input" placeholder="DD/MM/YYYY" data-field="billing_end" data-validate="date" />
+          <p class="error-message" id="billing_end_error">Must be DD/MM/YYYY format</p>
+        </div>
+        <div>
+          <label class="form-label" for="due_date">Payment Due Date</label>
+          <input type="text" id="due_date" class="form-input" placeholder="DD/MM/YYYY" data-field="due_date" data-validate="date" />
+          <p class="error-message" id="due_date_error">Must be DD/MM/YYYY format</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Financials -->
+    <section class="section-card">
+      <h2 class="section-title">
+        <span class="icon bg-emerald-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </span>
+        Financials
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div>
+          <label class="form-label" for="previous_balance">Previous Balance</label>
+          <input type="text" id="previous_balance" class="form-input" placeholder="e.g. 120.50" data-field="previous_balance" />
+        </div>
+        <div>
+          <label class="form-label" for="payments_received">Payments Received</label>
+          <input type="text" id="payments_received" class="form-input" placeholder="e.g. 120.50" data-field="payments_received" />
+        </div>
+        <div>
+          <label class="form-label" for="vat_rate">Taxes / VAT Rate (%)</label>
+          <input type="text" id="vat_rate" class="form-input" placeholder="e.g. 20" data-field="vat_rate" />
+        </div>
+        <div>
+          <label class="form-label" for="vat_amount">Taxes / VAT Amount</label>
+          <input type="text" id="vat_amount" class="form-input" placeholder="e.g. 24.10" data-field="vat_amount" />
+        </div>
+        <div>
+          <label class="form-label" for="total_due">Total Amount Due</label>
+          <input type="text" id="total_due" class="form-input" placeholder="e.g. 144.60" data-field="total_due" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================= -->
+    <!-- SECTION C: Template Selection & Preview        -->
+    <!-- ============================================= -->
+    <section class="section-card">
+      <h2 class="section-title">
+        <span class="icon bg-violet-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        </span>
+        Select Template
+      </h2>
+      <p class="text-sm text-muted -mt-4 mb-6">Choose a utility bill template to generate. Click the preview icon to see a sample layout.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="template-cards">
+
+        <!-- EDF Card -->
+        <div class="template-card" data-template="edf">
+          <span class="check-badge">✓</span>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-lg" style="background: #FE5716;">
+              edf
+            </div>
+            <div>
+              <h3 class="font-semibold text-heading text-sm">EDF Electricity</h3>
+              <p class="text-xs text-muted mt-0.5">France</p>
+            </div>
+            <button type="button" class="btn-preview" data-preview="edf">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Preview
+            </button>
+          </div>
+        </div>
+
+        <!-- Kenya Power Card -->
+        <div class="template-card" data-template="kenya_power">
+          <span class="check-badge">✓</span>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm" style="background: #1C6CB4;">
+              KP
+            </div>
+            <div>
+              <h3 class="font-semibold text-heading text-sm">Kenya Power</h3>
+              <p class="text-xs text-muted mt-0.5">Kenya</p>
+            </div>
+            <button type="button" class="btn-preview" data-preview="kenya_power">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Preview
+            </button>
+          </div>
+        </div>
+
+        <!-- Water Board Nicosia Card -->
+        <div class="template-card" data-template="nicosia">
+          <span class="check-badge">✓</span>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-sm" style="background: #4A86C5;">
+              WB
+            </div>
+            <div>
+              <h3 class="font-semibold text-heading text-sm">Water Board Nicosia</h3>
+              <p class="text-xs text-muted mt-0.5">Cyprus</p>
+            </div>
+            <button type="button" class="btn-preview" data-preview="nicosia">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Preview
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================= -->
+    <!-- SECTION D: Conditional Inputs                 -->
+    <!-- ============================================= -->
+
+    <!-- Meter & Consumption Fields (Kenya Power + Nicosia) -->
+    <div id="meter-section" class="conditional-section">
+      <section class="section-card">
+        <h2 class="section-title">
+          <span class="icon bg-cyan-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </span>
+          Meter &amp; Consumption
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div>
+            <label class="form-label" for="meter_number">Meter Number</label>
+            <input type="text" id="meter_number" class="form-input" placeholder="e.g. M-123456" data-field="meter_number" />
+          </div>
+          <div>
+            <label class="form-label" for="meter_reading_date">Exact Meter Reading Date</label>
+            <input type="text" id="meter_reading_date" class="form-input" placeholder="DD/MM/YYYY" data-field="meter_reading_date" data-validate="date" />
+            <p class="error-message" id="meter_reading_date_error">Must be DD/MM/YYYY format</p>
+          </div>
+          <div>
+            <label class="form-label" for="previous_reading">Previous Meter Reading</label>
+            <input type="text" id="previous_reading" class="form-input" placeholder="e.g. 45230" data-field="previous_reading" />
+          </div>
+          <div>
+            <label class="form-label" for="current_reading">Current Meter Reading</label>
+            <input type="text" id="current_reading" class="form-input" placeholder="e.g. 45890" data-field="current_reading" />
+          </div>
+          <div>
+            <label class="form-label" for="consumption_units">Total Consumption Units (kWh / m³)</label>
+            <input type="text" id="consumption_units" class="form-input" placeholder="e.g. 660" data-field="consumption_units" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- EDF Specific Fields -->
+    <div id="edf-section" class="conditional-section">
+      <section class="section-card">
+        <h2 class="section-title">
+          <span class="icon" style="background: #FE5716;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </span>
+          EDF Specific Details
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div>
+            <label class="form-label" for="edf_client_number">Client Number (10 digits)</label>
+            <input type="text" id="edf_client_number" class="form-input" placeholder="e.g. 1234567890" maxlength="10" data-field="edf_client_number" data-validate="edf_client" />
+            <p class="error-message" id="edf_client_number_error">Must be exactly 10 digits</p>
+          </div>
+          <div>
+            <label class="form-label" for="edf_account_number">Account Number</label>
+            <input type="text" id="edf_account_number" class="form-input" placeholder="e.g. ACC-98765" data-field="edf_account_number" />
+          </div>
+          <div>
+            <label class="form-label" for="edf_pdl">Point of Delivery / PDL (14 digits)</label>
+            <input type="text" id="edf_pdl" class="form-input" placeholder="e.g. 12345678901234" maxlength="14" data-field="edf_pdl" data-validate="edf_pdl" />
+            <p class="error-message" id="edf_pdl_error">Must be exactly 14 digits</p>
+          </div>
+          <div>
+            <label class="form-label" for="edf_power">Subscribed Power</label>
+            <input type="text" id="edf_power" class="form-input" placeholder="e.g. 9 kVA" data-field="edf_power" />
+          </div>
+          <div>
+            <label class="form-label" for="edf_tariff">Tariff Option</label>
+            <input type="text" id="edf_tariff" class="form-input" placeholder="e.g. Base" data-field="edf_tariff" />
+          </div>
+          <div>
+            <label class="form-label" for="edf_reading_type">Reading Type</label>
+            <select id="edf_reading_type" class="form-input" data-field="edf_reading_type">
+              <option value="">Select...</option>
+              <option value="Actual">Actual</option>
+              <option value="Estimated">Estimated</option>
+            </select>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Kenya Power Specific Fields -->
+    <div id="kenya-section" class="conditional-section">
+      <section class="section-card">
+        <h2 class="section-title">
+          <span class="icon" style="background: #1C6CB4;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </span>
+          Kenya Power Specific Details
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="form-label" for="kp_account_number">Account Number</label>
+            <input type="text" id="kp_account_number" class="form-input" placeholder="e.g. 0123456789" data-field="kp_account_number" />
+          </div>
+          <div>
+            <label class="form-label" for="kp_tariff">Tariff Category</label>
+            <input type="text" id="kp_tariff" class="form-input" placeholder="e.g. Domestic" data-field="kp_tariff" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Nicosia Specific Fields -->
+    <div id="nicosia-section" class="conditional-section">
+      <section class="section-card">
+        <h2 class="section-title">
+          <span class="icon" style="background: #4A86C5;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 2h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 8.172V3L8 2z"/></svg>
+          </span>
+          Water Board Nicosia Specific Details
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="form-label" for="nic_account_ref">Account Reference String</label>
+            <input type="text" id="nic_account_ref" class="form-input" placeholder="e.g. 8941/7/17588/0/0" data-field="nic_account_ref" data-validate="nicosia_ref" />
+            <p class="error-message" id="nic_account_ref_error">Must match format XXXX/X/XXXXX/X/X</p>
+          </div>
+          <div>
+            <label class="form-label" for="nic_tariff">Tariff / Pricing Code</label>
+            <input type="text" id="nic_tariff" class="form-input" placeholder="e.g. T1-Residential" data-field="nic_tariff" />
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- SECTION E: Action Area                        -->
+    <!-- ============================================= -->
+    <div id="error-container" class="hidden bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul id="error-list" class="list-disc pl-5 space-y-1"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <section class="section-card border-2 border-dashed border-primary-200 bg-primary-50/30">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-heading">Ready to Generate?</h2>
+          <p class="text-sm text-muted mt-1" id="action-status">Select a template and fill in all required fields above.</p>
+        </div>
+        <button type="button" id="generate-btn" class="btn-primary" disabled>
+          <span id="btn-text">Generate Indexable PDF</span>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================= -->
+  <!-- Preview Modal                                  -->
+  <!-- ============================================= -->
+  <div id="preview-modal" class="modal-overlay">
+    <div class="modal-content !max-w-4xl !w-[90vw]">
+      <div class="flex items-center justify-between p-5 border-b border-gray-100">
+        <h3 class="font-bold text-heading text-lg" id="modal-title">Template Preview</h3>
+        <button type="button" id="modal-close" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-muted transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-0 bg-gray-50 rounded-b-2xl overflow-hidden" id="modal-body">
+        <iframe id="preview-iframe" class="w-full h-[75vh] border-0" title="Template Preview"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-red-600 text-white px-5 py-3 rounded-xl shadow-xl text-sm font-medium transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <span id="toast-message"></span>
+  </div>
+
+</body>
+</html>

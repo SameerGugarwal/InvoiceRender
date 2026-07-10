@@ -1,0 +1,18 @@
+{
+  "name": "invoicerender-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "handlebars": "^4.7.9",
+    "jsdom": "^29.1.1",
+    "pdf-parse": "^2.4.5",
+    "puppeteer": "^24.9.0"
+  }
+}
