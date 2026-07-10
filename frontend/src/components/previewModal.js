@@ -1,4 +1,4 @@
-import { appState } from '../state/store.js';
+import { appState, getState } from '../state/store.js';
 import { fetchPreviewHtmlAPI } from '../services/api.js';
 
 export async function openPreviewModal(templateType) {
@@ -26,7 +26,7 @@ export async function openPreviewModal(templateType) {
 
   try {
     // Send the current form state (appState) to the backend for preview
-    const rawHtml = await fetchPreviewHtmlAPI(appState);
+    const rawHtml = await fetchPreviewHtmlAPI(getState());
     
     // Set iframe content directly to the backend-injected HTML
     iframe.srcdoc = rawHtml;

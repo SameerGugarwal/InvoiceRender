@@ -131,3 +131,7 @@ export function updateState(key, value) {
   localStorage.setItem('invoiceRenderState', JSON.stringify(appState));
   listeners.forEach(listener => listener(appState));
 }
+
+export function getState() {
+  return appState;
+}

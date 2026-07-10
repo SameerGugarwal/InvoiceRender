@@ -1,5 +1,5 @@
 import './style.css';
-import { appState, subscribe, updateState } from './state/store.js';
+import { appState, subscribe, updateState, getState } from './state/store.js';
 import { initGlobalForm, updateGenerateButton } from './components/globalForm.js';
 import { initTemplateCards, updateTemplateCardSelection } from './components/templateCard.js';
 import { updateDynamicFormVisibility } from './components/dynamicForm.js';
@@ -71,13 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       // API Call
-      const blob = await generatePdfAPI(appState);
+      const blob = await generatePdfAPI(getState());
       
       // Download File
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${appState.template_type}_invoice.pdf`;
+      a.download = `${getState().template_type}_invoice.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

@@ -11,15 +11,18 @@ export function initGlobalForm() {
     });
 
     // Clear error and update state on input
-    input.addEventListener('input', (e) => {
+    const updateHandler = (e) => {
       const id = e.target.id;
       if (id) {
         updateState(id, e.target.value);
         if (input.classList.contains('error')) {
-          validateField(input); // re-validate to clear error early if fixed
+          validateField(input);
         }
       }
-    });
+    };
+    input.addEventListener('input', updateHandler);
+    input.addEventListener('change', updateHandler);
+    // Old listener replaced
   });
 }
 

@@ -1,4 +1,4 @@
-import { appState } from '../state/store.js';
+import { getState } from '../state/store.js';
 
 export const VALIDATORS = {
   date: {
@@ -56,7 +56,7 @@ export function clearFieldError(input) {
 export function validateAll() {
   const errors = [];
 
-  if (!appState.template_type) {
+  if (!getState().template_type) {
     errors.push('Please select a template');
   }
 
@@ -67,30 +67,30 @@ export function validateAll() {
   ];
 
   for (const field of globalFields) {
-    if (!appState[field]?.trim()) {
+    if (!getState()[field]?.trim()) {
       errors.push(`Missing required field: ${field.replace(/_/g, ' ')}`);
     }
   }
 
   const dateFields = ['invoice_date', 'billing_start', 'billing_end', 'due_date'];
   for (const field of dateFields) {
-    const val = appState[field]?.trim();
+    const val = getState()[field]?.trim();
     if (val && !VALIDATORS.date.regex.test(val)) {
       errors.push(`${field.replace(/_/g, ' ')} must be DD/MM/YYYY`);
     }
   }
 
-  const tmpl = appState.template_type;
+  const tmpl = getState().template_type;
 
   if (tmpl === 'edf') {
     const edfFields = ['edf_client_number', 'edf_account_number', 'edf_pdl', 'edf_power', 'edf_tariff', 'edf_reading_type'];
     for (const field of edfFields) {
-      if (!appState[field]?.trim()) errors.push(`Missing EDF field: ${field.replace(/edf_/g, '').replace(/_/g, ' ')}`);
+      if (!getState()[field]?.trim()) errors.push(`Missing EDF field: ${field.replace(/edf_/g, '').replace(/_/g, ' ')}`);
     }
-    if (appState.edf_client_number && !VALIDATORS.edf_client.regex.test(appState.edf_client_number)) {
+    if (getState().edf_client_number && !VALIDATORS.edf_client.regex.test(getState().edf_client_number)) {
       errors.push('EDF Client Number must be exactly 10 digits');
     }
-    if (appState.edf_pdl && !VALIDATORS.edf_pdl.regex.test(appState.edf_pdl)) {
+    if (getState().edf_pdl && !VALIDATORS.edf_pdl.regex.test(getState().edf_pdl)) {
       errors.push('EDF PDL must be exactly 14 digits');
     }
   }
@@ -98,22 +98,22 @@ export function validateAll() {
   if (tmpl === 'kenya_power' || tmpl === 'nicosia') {
     const meterFields = ['meter_number', 'meter_reading_date', 'previous_reading', 'current_reading', 'consumption_units'];
     for (const field of meterFields) {
-      if (!appState[field]?.trim()) errors.push(`Missing meter field: ${field.replace(/_/g, ' ')}`);
+      if (!getState()[field]?.trim()) errors.push(`Missing meter field: ${field.replace(/_/g, ' ')}`);
     }
-    if (appState.meter_reading_date && !VALIDATORS.date.regex.test(appState.meter_reading_date)) {
+    if (getState().meter_reading_date && !VALIDATORS.date.regex.test(getState().meter_reading_date)) {
       errors.push('Meter reading date must be DD/MM/YYYY');
     }
   }
 
   if (tmpl === 'kenya_power') {
-    if (!appState.kp_account_number?.trim()) errors.push('Missing Kenya Power Account Number');
-    if (!appState.kp_tariff?.trim()) errors.push('Missing Kenya Power Tariff Category');
+    if (!getState().kp_account_number?.trim()) errors.push('Missing Kenya Power Account Number');
+    if (!getState().kp_tariff?.trim()) errors.push('Missing Kenya Power Tariff Category');
   }
 
   if (tmpl === 'nicosia') {
-    if (!appState.nic_account_ref?.trim()) errors.push('Missing Nicosia Account Reference');
-    if (!appState.nic_tariff?.trim()) errors.push('Missing Nicosia Tariff / Pricing Code');
-    if (appState.nic_account_ref && !VALIDATORS.nicosia_ref.regex.test(appState.nic_account_ref)) {
+    if (!getState().nic_account_ref?.trim()) errors.push('Missing Nicosia Account Reference');
+    if (!getState().nic_tariff?.trim()) errors.push('Missing Nicosia Tariff / Pricing Code');
+    if (getState().nic_account_ref && !VALIDATORS.nicosia_ref.regex.test(getState().nic_account_ref)) {
       errors.push('Nicosia Account Reference must match XXXX/X/XXXXX/X/X');
     }
   }
