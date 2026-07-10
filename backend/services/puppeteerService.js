@@ -40,8 +40,8 @@ export async function generatePDF(dynamicHtml) {
       console.log('[Puppeteer] Bundle unpack timeout - proceeding');
     });
 
-    // Wait a little extra time for the injected script's setTimeout to fire and React to update
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Give the injected script's setTimeout a moment to fire and the DOM to settle
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // 4. Generate PDF with exact settings
     const pdfBuffer = await page.pdf(pdfRenderOptions);

@@ -1,5 +1,6 @@
 import { generatePDF } from '../services/puppeteerService.js';
-import { TEMPLATE_FILES } from '../services/templateService.js';
+import { TEMPLATE_FILES, getRawTemplateHTML } from '../services/templateService.js';
+import { validatePayload } from '../services/validationService.js';
 import { injectEDF } from '../services/templates/edfInjector.js';
 import { injectKenyaPower } from '../services/templates/kenyaInjector.js';
 import { injectNicosia } from '../services/templates/nicosiaInjector.js';
@@ -15,7 +16,14 @@ export const handleGeneratePdf = async (req, res, next) => {
       throw err;
     }
 
-    console.log(`[PDF Controller] Generating ${payload.template_type} bill for: ${payload.customer_name || 'Unknown'}`);
+    const validationErrors = validatePayload(payload);
+    if (validationErrors.length > 0) {
+      const err = new Error(validationErrors.join('; '));
+      err.status = 400;
+      throw err;
+    }
+
+    console.log(`[PDF Controller] Generating ${payload.template_type} bill for: ${payload.customer?.fullName || 'Unknown'}`);
 
     // Modular injection based on template type
     let htmlContent;

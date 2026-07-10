@@ -9,8 +9,12 @@ RUN apt-get update \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
+# Use the system Chrome installed above instead of downloading Chromium again
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+
 WORKDIR /app
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm install
-COPY . .
+COPY backend/ .
 CMD ["node", "server.js"]

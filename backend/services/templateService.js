@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Handlebars from 'handlebars';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,10 +22,10 @@ export function getRawTemplateHTML(templateType) {
     throw err;
   }
 
-  const templatePath = path.resolve(__dirname, '..', '..', 'doc', 'templets', templateFile);
-  
+  const templatePath = path.resolve(__dirname, '..', 'templates', templateFile);
+
   if (!fs.existsSync(templatePath)) {
-    const fallbackPath = path.resolve(__dirname, '..', 'templates', templateFile);
+    const fallbackPath = path.resolve(__dirname, '..', '..', 'doc', 'templets', templateFile);
     if (!fs.existsSync(fallbackPath)) {
         const err = new Error(`Template file not found at ${templatePath} or ${fallbackPath}`);
         err.status = 500;
@@ -36,21 +35,4 @@ export function getRawTemplateHTML(templateType) {
   }
 
   return fs.readFileSync(templatePath, 'utf8');
-}
-
-/**
- * The Dynamic Template Engine
- * Reads the HTML and injects the JSON payload dynamically via Handlebars.
- */
-export function getDynamicTemplateHTML(payload) {
-  const rawHtml = getRawTemplateHTML(payload.template_type);
-  
-  // Log the payload to verify the incoming JSON structure
-  console.log('[Template Engine] Incoming Payload:', JSON.stringify(payload, null, 2));
-
-  // Compile the template with Handlebars
-  const template = Handlebars.compile(rawHtml);
-  
-  // Return the fully dynamic HTML string
-  return template(payload);
 }

@@ -1,0 +1,10 @@
+**/node_modules
+frontend
+doc
+.git
+.claude
+.vscode
+*.pdf
+test_download.js
+extract_edf.js
+extract_edf2.js

@@ -1,4 +1,4 @@
-import { appState, getState } from '../state/store.js';
+import { getState, DUMMY_DATA } from '../state/store.js';
 import { fetchPreviewHtmlAPI } from '../services/api.js';
 
 export async function openPreviewModal(templateType) {
@@ -25,8 +25,19 @@ export async function openPreviewModal(templateType) {
   document.body.style.overflow = 'hidden';
 
   try {
-    // Send the current form state (appState) to the backend for preview
-    const rawHtml = await fetchPreviewHtmlAPI(getState());
+    // Preview the clicked template with the current form state,
+    // falling back to dummy data for any fields left empty
+    const previewState = { ...(DUMMY_DATA[templateType] || {}) };
+    const currentState = getState();
+    Object.keys(currentState).forEach(key => {
+      const value = currentState[key];
+      if (typeof value === 'string' ? value.trim() !== '' : value != null) {
+        previewState[key] = value;
+      }
+    });
+    previewState.template_type = templateType;
+
+    const rawHtml = await fetchPreviewHtmlAPI(previewState);
     
     // Set iframe content directly to the backend-injected HTML
     iframe.srcdoc = rawHtml;
