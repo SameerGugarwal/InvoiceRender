@@ -43,8 +43,22 @@ export async function generatePDF(dynamicHtml) {
     // Give the injected script's setTimeout a moment to fire and the DOM to settle
     await new Promise(resolve => setTimeout(resolve, 500));
 
+    // Scale content down so bills authored wider than A4 (794x1123px @96dpi) fit the page width
+    const { contentWidth, contentHeight } = await page.evaluate(() => ({
+      contentWidth: document.documentElement.scrollWidth,
+      contentHeight: document.documentElement.scrollHeight,
+    }));
+    let scale = Math.min(1, 794 / contentWidth);
+    // If the content barely overflows one page (<6%), shrink it slightly to avoid
+    // pushing a sliver onto a nearly empty trailing page
+    const scaledHeight = contentHeight * scale;
+    if (scaledHeight > 1123 && scaledHeight <= 1123 * 1.06) {
+      scale = Math.min(scale, 1123 / contentHeight);
+    }
+    scale = Math.max(0.1, scale);
+
     // 4. Generate PDF with exact settings
-    const pdfBuffer = await page.pdf(pdfRenderOptions);
+    const pdfBuffer = await page.pdf({ ...pdfRenderOptions, scale });
 
     console.log('[Puppeteer] PDF generated successfully (' + pdfBuffer.length + ' bytes)');
     return Buffer.from(pdfBuffer);
