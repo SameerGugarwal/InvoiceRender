@@ -1,11 +1,21 @@
 import './style.css';
-import { appState, subscribe, updateState, getState } from './state/store.js';
+import { appState, subscribe, updateState, getState, markHardReload } from './state/store.js';
 import { initGlobalForm, updateGenerateButton } from './components/globalForm.js';
 import { initTemplateCards, updateTemplateCardSelection } from './components/templateCard.js';
 import { updateDynamicFormVisibility } from './components/dynamicForm.js';
 import { initPreviewModal } from './components/previewModal.js';
 import { validateAll } from './services/validator.js';
 import { generatePdfAPI } from './services/api.js';
+
+// Catch the hard-refresh shortcut on the way down — the page is gone before we
+// could ask about it afterwards. Registered at module scope rather than on
+// DOMContentLoaded so a key pressed during load still counts.
+document.addEventListener('keydown', (e) => {
+  const key = e.key?.toLowerCase();
+  const isShiftReload = (e.metaKey || e.ctrlKey) && e.shiftKey && key === 'r';
+  const isHardF5 = key === 'f5' && (e.ctrlKey || e.shiftKey);
+  if (isShiftReload || isHardF5) markHardReload();
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize UI Components

@@ -64,14 +64,69 @@ const defaultState = {
 
 export const appState = { ...defaultState };
 
-const savedState = localStorage.getItem('invoiceRenderState');
-if (savedState) {
-  try {
-    Object.assign(appState, JSON.parse(savedState));
-  } catch (e) {
-    console.error('Failed to parse local storage state', e);
+// A hard refresh should reset the form while a plain refresh keeps it. Browsers
+// report both as navigation type "reload", so there is nothing to read on load:
+// the shortcut has to be recorded on keydown (see markHardReload) and consumed
+// here on the way back up. The timestamp keeps a flag that never got its reload
+// from leaking into some later, unrelated one.
+const HARD_RELOAD_KEY = '__invoiceRenderHardReload';
+
+export function markHardReload() {
+  sessionStorage.setItem(HARD_RELOAD_KEY, String(Date.now()));
+}
+
+function consumeHardReloadFlag() {
+  const markedAt = sessionStorage.getItem(HARD_RELOAD_KEY);
+  if (!markedAt) return false;
+  sessionStorage.removeItem(HARD_RELOAD_KEY);
+  return Date.now() - Number(markedAt) < 5000;
+}
+
+if (consumeHardReloadFlag()) {
+  localStorage.removeItem('invoiceRenderState');
+} else {
+  const savedState = localStorage.getItem('invoiceRenderState');
+  if (savedState) {
+    try {
+      Object.assign(appState, JSON.parse(savedState));
+    } catch (e) {
+      console.error('Failed to parse local storage state', e);
+    }
   }
 }
+
+// Values that are the same on every bill for a given template, applied to the
+// form when that template is selected. Only genuine constants belong here:
+// per-customer identity, invoice/reference numbers, dates and meter readings are
+// deliberately left out so a bill can never go out carrying a stale sample value.
+export const TEMPLATE_DEFAULTS = {
+  nicosia: {
+    // The Water Board of Nicosia only bills Nicosia, and Cyprus VAT is 19%.
+    customer_city: 'Λευκωσία',
+    vat_rate: '19',
+    nic_tariff: 'T1-Residential',
+    // Apostille — the issuing authority never changes.
+    apo_country: 'Cyprus',
+    apo_signedBy: 'Maria Ioannou',
+    apo_capacity: 'Certifying Officer',
+    apo_organization: 'Ministry of Justice',
+    apo_location: 'Nicosia',
+    apo_certifiedBy: 'George Georgiou',
+    // Translation certificate — the translator and agency never change.
+    cert_translatorName: 'Eleni Costa',
+    cert_translatorRole: 'Sworn Translator',
+    cert_city: 'Nicosia',
+    cert_country: 'Cyprus',
+    cert_idNumber: '123456',
+    cert_company: 'Translation Services Ltd',
+    cert_address: '123 Main St',
+    cert_phone: '+357 22 123456',
+    cert_email: 'info@translations.com.cy',
+    cert_sourceLanguage: 'Greek',
+    cert_targetLanguage: 'English',
+    cert_documentType: 'Utility Bill',
+  },
+};
 
 export const DUMMY_DATA = {
   edf: {
@@ -174,6 +229,13 @@ export function subscribe(listener) {
 
 export function updateState(key, value) {
   appState[key] = value;
+  localStorage.setItem('invoiceRenderState', JSON.stringify(appState));
+  listeners.forEach(listener => listener(appState));
+}
+
+// Merge several fields at once, notifying listeners a single time.
+export function updateStateBulk(values) {
+  Object.assign(appState, values);
   localStorage.setItem('invoiceRenderState', JSON.stringify(appState));
   listeners.forEach(listener => listener(appState));
 }
