@@ -8,6 +8,7 @@ import { injectNicosia } from '../services/templates/nicosiaInjector.js';
 export const handleGeneratePdf = async (req, res, next) => {
   try {
     const payload = req.body;
+    console.log("[PDF Controller] req.body in handleGeneratePdf:", JSON.stringify(req.body, null, 2));
 
     const validTemplates = Object.keys(TEMPLATE_FILES);
     if (!payload.template_type || !validTemplates.includes(payload.template_type)) {
@@ -68,6 +69,7 @@ export const handleGetTemplate = (req, res, next) => {
 export const handlePreviewHtml = async (req, res, next) => {
   try {
     const payload = req.body;
+    console.log("[PDF Controller] req.body in handlePreviewHtml:", JSON.stringify(req.body, null, 2));
     const validTemplates = Object.keys(TEMPLATE_FILES);
     if (!payload.template_type || !validTemplates.includes(payload.template_type)) {
       return res.status(400).json({ error: 'Invalid template_type' });

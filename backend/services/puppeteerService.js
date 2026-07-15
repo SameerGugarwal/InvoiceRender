@@ -1,5 +1,13 @@
 import puppeteer from 'puppeteer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { pathToFileURL } from 'url';
 import { puppeteerLaunchArgs, pdfRenderOptions, viewportOptions } from '../config/puppeteerConfig.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Project root: two levels up from backend/services/
+const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
 
 let browserInstance = null;
 
@@ -25,6 +33,15 @@ export async function generatePDF(dynamicHtml) {
 
     console.log('[Puppeteer] Setting dynamic HTML content...');
     
+    // Inject a <base> tag so relative image paths (e.g. doc/LOGOS/...) resolve
+    // against the project root. page.setContent() has no implicit base URL.
+    const baseHref = pathToFileURL(PROJECT_ROOT + '/').href;
+    if (dynamicHtml.includes('<head>')) {
+      dynamicHtml = dynamicHtml.replace('<head>', `<head>\n<base href="${baseHref}">`);
+    } else if (dynamicHtml.includes('<HEAD>')) {
+      dynamicHtml = dynamicHtml.replace('<HEAD>', `<HEAD>\n<base href="${baseHref}">`);
+    }
+
     // 2. Pass dynamic HTML directly to Puppeteer
     await page.setContent(dynamicHtml, {
       waitUntil: 'networkidle0',

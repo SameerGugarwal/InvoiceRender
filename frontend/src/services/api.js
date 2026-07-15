@@ -45,12 +45,41 @@ function buildPayload(flatPayload) {
     nicosiaSpecific: {
       accountRef: flatPayload.nic_account_ref,
       tariff: flatPayload.nic_tariff
+    },
+    apostille: {
+      country: flatPayload.apo_country,
+      signedBy: flatPayload.apo_signedBy,
+      capacity: flatPayload.apo_capacity,
+      organization: flatPayload.apo_organization,
+      location: flatPayload.apo_location,
+      date: flatPayload.apo_date,
+      certifiedBy: flatPayload.apo_certifiedBy,
+      referenceNumber: flatPayload.apo_referenceNumber,
+    },
+    certificate: {
+      translatorName: flatPayload.cert_translatorName,
+      city: flatPayload.cert_city,
+      country: flatPayload.cert_country,
+      idNumber: flatPayload.cert_idNumber,
+      company: flatPayload.cert_company,
+      sourceLanguage: flatPayload.cert_sourceLanguage,
+      targetLanguage: flatPayload.cert_targetLanguage,
+      documentType: flatPayload.cert_documentType,
+      customerName: flatPayload.cert_customerName,
+      address: flatPayload.cert_address,
+      phone: flatPayload.cert_phone,
+      email: flatPayload.cert_email,
+      translatorRole: flatPayload.cert_translatorRole,
+      date: flatPayload.cert_date,
     }
   };
 }
 
 export async function generatePdfAPI(flatPayload) {
   const payload = buildPayload(flatPayload);
+
+  console.log("FRONTEND STATE", flatPayload);
+  console.log("PAYLOAD SENT TO BACKEND", payload);
 
   const response = await fetch(`${BASE_URL}/api/generate-pdf`, {
     method: 'POST',
@@ -70,6 +99,9 @@ export async function generatePdfAPI(flatPayload) {
 
 export async function fetchPreviewHtmlAPI(flatPayload) {
   const payload = buildPayload(flatPayload);
+
+  console.log("FRONTEND STATE", flatPayload);
+  console.log("PAYLOAD SENT TO BACKEND", payload);
 
   const response = await fetch(`${BASE_URL}/api/preview-html`, {
     method: 'POST',
