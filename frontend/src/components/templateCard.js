@@ -1,23 +1,28 @@
-import { updateState, updateStateBulk, getState, TEMPLATE_DEFAULTS } from '../state/store.js';
+import { updateState, updateStateBulk, getState, getTemplateDefaults } from '../state/store.js';
 import { clearFieldError } from '../services/validator.js';
 import { openPreviewModal } from './previewModal.js';
 
-// Push a template's constant fields into both the inputs and the state. Runs
-// only on an actual template switch, so re-clicking the selected card can't
-// silently discard edits the user made to a defaulted field.
-function applyTemplateDefaults(templateType) {
-  const defaults = TEMPLATE_DEFAULTS[templateType];
+// Fill the form with a template's defaults, dates included, so the bill can be
+// generated after changing nothing but the name. Runs only on an actual template
+// switch, so re-clicking the selected card can't silently discard edits.
+export function applyTemplateDefaults(templateType) {
+  // Resolved against today, every time — never a stale literal.
+  const defaults = getTemplateDefaults(templateType);
   if (!defaults) return;
 
-  Object.entries(defaults).forEach(([field, value]) => {
+  writeFields(defaults);
+  updateStateBulk(defaults);
+}
+
+/** Mirrors state values into their inputs, clearing any stale error styling. */
+export function writeFields(values) {
+  Object.entries(values).forEach(([field, value]) => {
     const input = document.getElementById(field);
     if (input) {
       input.value = value;
       clearFieldError(input);
     }
   });
-
-  updateStateBulk(defaults);
 }
 
 export function initTemplateCards() {

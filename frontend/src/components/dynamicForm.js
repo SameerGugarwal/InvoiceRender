@@ -14,7 +14,7 @@ export function updateDynamicFormVisibility(appState, shouldScroll = false) {
   if (nicosiaSection) nicosiaSection.classList.remove('visible');
 
   // Show relevant sections
-  if (templateType === 'edf') {
+  if (templateType === 'edf' || templateType === 'edf_v2') {
     if (edfSection) edfSection.classList.add('visible');
   } else if (templateType === 'kenya_power') {
     if (meterSection) meterSection.classList.add('visible');
@@ -28,7 +28,7 @@ export function updateDynamicFormVisibility(appState, shouldScroll = false) {
   // changed (i.e. a card was clicked), never on every keystroke.
   if (shouldScroll) {
     setTimeout(() => {
-      const targetSection = templateType === 'edf' ? edfSection : meterSection;
+      const targetSection = (templateType === 'edf' || templateType === 'edf_v2') ? edfSection : meterSection;
       if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 350);
   }

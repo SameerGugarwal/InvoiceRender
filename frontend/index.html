@@ -148,7 +148,9 @@
       </h2>
       <p class="text-sm text-muted -mt-4 mb-6">Choose a utility bill template to generate. Click the preview icon to see a sample layout.</p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="template-cards">
+      <!-- 4 columns while EDF V2 runs alongside the original; back to 3 once
+           edf is redirected to V2 and this card goes away. -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="template-cards">
 
         <!-- EDF Card -->
         <div class="template-card" data-template="edf">
@@ -162,6 +164,24 @@
               <p class="text-xs text-muted mt-0.5">France</p>
             </div>
             <button type="button" class="btn-preview" data-preview="edf">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              Preview
+            </button>
+          </div>
+        </div>
+
+        <!-- EDF V2 Card -->
+        <div class="template-card" data-template="edf_v2">
+          <span class="check-badge">✓</span>
+          <div class="flex flex-col items-center text-center gap-3">
+            <div class="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-lg" style="background: #FE5716;">
+              edf
+            </div>
+            <div>
+              <h3 class="font-semibold text-heading text-sm">EDF Electricity V2</h3>
+              <p class="text-xs text-muted mt-0.5">France</p>
+            </div>
+            <button type="button" class="btn-preview" data-preview="edf_v2">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
               Preview
             </button>
@@ -299,7 +319,7 @@
           </span>
           Kenya Power Specific Details
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <div>
             <label class="form-label" for="kp_account_number">Account Number</label>
             <input type="text" id="kp_account_number" class="form-input" placeholder="e.g. 0123456789" data-field="kp_account_number" />
@@ -307,6 +327,18 @@
           <div>
             <label class="form-label" for="kp_tariff">Tariff Category</label>
             <input type="text" id="kp_tariff" class="form-input" placeholder="e.g. Domestic" data-field="kp_tariff" />
+          </div>
+          <div>
+            <label class="form-label" for="kp_load">Maximum Authorized Load (kVA)</label>
+            <input type="text" id="kp_load" class="form-input" placeholder="e.g. 3" data-field="kp_load" />
+          </div>
+          <div>
+            <label class="form-label" for="kp_email">Customer Email</label>
+            <input type="text" id="kp_email" class="form-input" placeholder="e.g. name@example.com" data-field="kp_email" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="form-label" for="kp_history">Consumption Trend – last 6 months (kWh, oldest first)</label>
+            <input type="text" id="kp_history" class="form-input" placeholder="e.g. 520, 610, 700, 640, 580, 660" data-field="kp_history" />
           </div>
         </div>
       </section>

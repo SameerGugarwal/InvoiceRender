@@ -36,7 +36,8 @@ export function validatePayload(payload) {
 
   const tmpl = payload.template_type;
 
-  if (tmpl === 'edf') {
+  // V2 renders the same edfSpecific fields, so it carries the same rules.
+  if (tmpl === 'edf' || tmpl === 'edf_v2') {
     requireFields(errors, payload.edfSpecific, ['clientNumber', 'accountNumber', 'pdlNumber', 'subscribedPower', 'tariffOption', 'readingType'], 'edfSpecific');
     const clientNumber = payload.edfSpecific?.clientNumber;
     if (clientNumber && !EDF_CLIENT_REGEX.test(String(clientNumber).trim())) {

@@ -1,4 +1,4 @@
-import { getState, DUMMY_DATA } from '../state/store.js';
+import { getState, getTemplateDefaults } from '../state/store.js';
 import { fetchPreviewHtmlAPI } from '../services/api.js';
 
 export async function openPreviewModal(templateType) {
@@ -8,6 +8,7 @@ export async function openPreviewModal(templateType) {
 
   const titles = {
     edf: 'EDF Electricity Bill – Live Preview',
+    edf_v2: 'EDF Electricity Bill V2 – Live Preview',
     kenya_power: 'Kenya Power Bill – Live Preview',
     nicosia: 'Water Board Nicosia Bill – Live Preview',
   };
@@ -25,9 +26,10 @@ export async function openPreviewModal(templateType) {
   document.body.style.overflow = 'hidden';
 
   try {
-    // Preview the clicked template with the current form state,
-    // falling back to dummy data for any fields left empty
-    const previewState = { ...(DUMMY_DATA[templateType] || {}) };
+    // Preview the clicked template with the current form state, falling back to
+    // that template's defaults for any field left empty — which also means a
+    // card can be previewed before its template has ever been selected.
+    const previewState = { ...(getTemplateDefaults(templateType) || {}) };
     const currentState = getState();
     Object.keys(currentState).forEach(key => {
       const value = currentState[key];

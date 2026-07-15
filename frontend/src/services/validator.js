@@ -82,7 +82,7 @@ export function validateAll() {
 
   const tmpl = getState().template_type;
 
-  if (tmpl === 'edf') {
+  if (tmpl === 'edf' || tmpl === 'edf_v2') {
     const edfFields = ['edf_client_number', 'edf_account_number', 'edf_pdl', 'edf_power', 'edf_tariff', 'edf_reading_type'];
     for (const field of edfFields) {
       if (!getState()[field]?.trim()) errors.push(`Missing EDF field: ${field.replace(/edf_/g, '').replace(/_/g, ' ')}`);

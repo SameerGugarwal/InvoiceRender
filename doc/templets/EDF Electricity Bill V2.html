@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>EDF Electricity Bill V2</title>
+<style>
+  /* Geometry mirrors doc/new-temp/EDF Electricity (1).pdf, which is US Letter
+     (612x792pt). Authored 1:1 at 96dpi (816x1056px) so every coordinate here is
+     the PDF's own point value x 4/3. puppeteerService scales the page down to
+     fit A4 width, which preserves the proportions. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #ffffff;
+    font-family: 'Ebrima', 'Segoe UI', 'Nirmala UI', 'Trebuchet MS', 'Helvetica Neue', Arial, sans-serif;
+    color: #000;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    position: relative;
+    width: 816px;
+    height: 1056px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  /* Every EDF panel uses the same single rounded corner (top-left). */
+  .panel { position: absolute; background: #fff; border-radius: 22px 0 0 0; }
+  .panel--gold { border: 1.3px solid #ffc000; }
+  .panel--blue { border: 1.3px solid #5b9bd5; }
+
+  .t { position: absolute; white-space: pre; }
+  .gold { color: #ffc000; }
+  .blue { color: #0066ff; }
+  .link { color: #3266ff; }
+  .b { font-weight: 700; }
+
+  /* Left contact panel ------------------------------------------------- */
+  .s6  { font-size: 8px;    line-height: 10.3px; }
+  .s7  { font-size: 9.33px; line-height: 12.1px; }
+  .s8  { font-size: 10.67px; line-height: 13.7px; }
+  .sup { font-size: 5.33px; line-height: 7px; }
+
+  .rule { position: absolute; height: 0; border-top: 0.7px solid #ffc000; }
+
+  /* Invoice summary ---------------------------------------------------- */
+  .band { position: absolute; left: 321.2px; width: 312.4px; background: #aee4fc; border-radius: 4px; }
+
+  .totalPanel {
+    position: absolute;
+    left: 637.5px; top: 385.7px;
+    width: 96px; height: 135.2px;
+    background: #0099ff;
+    color: #fff;
+    font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', 'Arial Black', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  /* Addressee block is the only serif in the document. Authored one line per
+     address line, so the source newlines have to survive. */
+  .addr {
+    position: absolute;
+    left: 443.6px; top: 203px;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 700;
+    font-size: 14.6px;
+    line-height: 16px;
+    color: #000;
+    white-space: pre-line;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ================= EDF branding + addressee ================= -->
+  <img src="data:image/jpeg;base64,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" alt="EDF" style="position:absolute; left:347.9px; top:96px; width:102.8px; height:49.9px;">
+  <img src="data:image/png;base64,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" alt="" style="position:absolute; left:607.5px; top:147.9px; width:98.5px; height:38.1px;">
+
+  <div class="addr">{{customer.fullName}}
+{{customer.street}}
+{{customer.postalCode}} {{customer.city}}</div>
+
+  <!-- ================= Left: contact panel ================= -->
+  <div class="panel panel--gold" style="left:98.7px; top:96px; width:205.5px; height:338px;"></div>
+
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAIAAABvFaqvAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAFt0lEQVR4nB2V+29cxRXH759UqapU+gOo5IcSAaUt/aGhKooqiqBCan9uqhb6A40oEk0kSpw4sRy7dogTx4/iPHBw7NiOHdhd28l6196nd/fu3cd9P+dx5hxmKx2NRrpnvnPmzHc+1/D6tSwwkTsEAUlfcUexIQmbpIPSltLm0uHgSfQVBoihziHuEQ9JpChTJSIlPQTHSL2OTPoILqFPyiVpEwyJ3FEorTUEMQRwCL1R6AQ2oHRAmc6MEbRWrIQH0jaQuQjeaI2wVNKEuApJFbImpCcQN0VQZ36dhQ0Zn6i0qeKa9Mp8WBJ+U+mFWkuEwD3JbYMwJgpQWtwvRZ0tv/HQq33t1r9x6utudcOpbtiVx8PqptPYjE4209Z6UH0wPHoQtJ6KsKW1FPcl0+EaiAkpH5Jm2N7sP5uz8pNW/rqZm+nk5szcvJlfNPeWO3vL3f0F5/kd//BWPz/Z3J3oHa4wp6SyATBPZgFkgSFliMKR/pFfvWflJgaFK17pv2553j1acY/uu8erbuWhHr3K3aj+v7R6a1AYb2z9x3p+h3mHKGyUwajfLDbYqLyhcA/d8nIvdzU4msbhAwx20T9Av4heCb0y6jX+Poa7yl71ytOtJ2O94h0RlhF9VLGSCYjYkODrK9MNGhQXOruXg6MbFGwRLxNrUWZS2qOsT6xH7ITEEUY77vHNxtYl8+B26h2CciQEQoSCh4bU1qCAR0e954vNrTG3dIP8XWJVSruUDin1iAUkXOIWyYZK8nZlvrY51s7fSpwigM3Bz4TPuG8wFSKFPK70i0snWujwBnk7lFUo1eXY/1fRJtT2MUnWVFpwqgv1rSudvfnULSl9FAiYDBj3jEiGUgslNbv8lbk7PjpauE2iRKJJokswIByS6pGoE5Qw/davzbd3rvaeLQr/WHtYYsSU1nKNABKGURbXnOMV3eyoNkPJOkGBVJngmKBKqkZYISgS5DB6FB7PdncvD4tLMqjonkiMM/BTYRsJMk4xiyre8fLguy/C0hj0b0pvRXir3H3I7VXu6MmqcO+Bs6y6Xwb7n5uPP7MP5iAsE/mAoS4nYUPd7EwpXwZFrzzX2zpvb/8tLHwc7H3qFi44hQt2/oJduOgUPnML/0r2P+F7/3Q3zrXun+t/Ny7dHGEP0RXCYdnQ0LYm1gbrsZf7wrz35/bC77qLv+0unO0svtNefLe99J65/H576Q/thbOD5bfdlbd7C2fqt8+aj/6RNJdV9Ax5S4mBZPqtsRbaeV6+6T76sH37rcbUqcbES41rLzcnT7em3ujMvGnO/ro1/UZj8pXW5E/N6ZfaUy/WZl5pfvWenf88a2vrFpFZSt8aDfO8suJvXzSXPqhPv1YZ/3Hl0o/ql1/oXDvVn3rVmf2lM/sra+r11sTLzasvnFz9YWP8B+VrPynNvtl4cM49mBbWDiUdbREDW+vRwZy19mlz8U/1L39Tm361OXXanPm5c+tMtPT77O776d0/esvv9G+/Zd38hXXj9Mn0qfL1nz2fPXO0cq6Xm8xa2xi2NOcMtJ7Ex/eG+evWzsXek48HWx86m38Ptj/Knn4CexexOKaKV9jBpTj372j3fPjkI2fjL921v548Ot/5dsIr3+fdffQ7mPiGNjF395LeVtbb4Pa6sNdk/yF0v1bWGtrbFOQoLGBQAOcpDDahtybNVWZ+k3W32WBfOjXldTDoQ6gJSZYUTZ5VlTghtPSNkjL1E8W0hbyLYCvlKuUpTVsxIN4lZo0m+tHIiHhEWYixB5GjwdYXwmS8I2CAFBBFelTChRFeNDkTgEzITIgERsAPRgExASPgJBnxFFmo8WagRoEYcD5gwhYQgIpAxZovwBPF9U+CSyEZl4wxwWLFI+R6G83pCLjGvmZ2jDJCCAwCX2lCckcwm3FXSB9GHxKETG+LUoAEIYBzrZiCDEAns6HIBjyzNapBarYFhOH3AbfqB5lgvYMAAAAASUVORK5CYII=" alt="" style="position:absolute; left:121.1px; top:99.7px; width:11.7px; height:11.7px;">
+  <div class="t s7 b gold" style="left:137.1px; top:102.1px;">Par Internet</div>
+  <div class="t s6" style="left:114.1px; top:113.9px; color:#222;">•</div>
+  <div class="t s6 b" style="left:119.5px; top:114.4px;">Pour gérer votre</div>
+  <div class="t s6" style="left:181.5px; top:113.9px;"> contrat et retrouver vos</div>
+  <div class="t s6" style="left:114.1px; top:124.8px;">factures sur votre espace Client 24h/24 et 7/7:</div>
+  <div class="t s6 gold" style="left:114.1px; top:135.5px;">espaceclient.edf.com</div>
+  <div class="t s6 link" style="left:151.7px; top:146.3px;">Identifiant Internet: AA000000</div>
+  <div class="rule" style="left:114.4px; top:163.3px; width:176.3px;"></div>
+
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAhABkDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3aSRIULyHCiqDa5ZgMQxJHtTtWYCFN3TPNOhNh5CHZHkj0rinN8zinY3jBKN2rktneJeRbozVrDetZGlmM3lz5eAobgCtbNaUanNHUmcUnoZeu82YJ61jrE3kx9cn3rprq2S5hMb96yP+EdHT7TJx0wa4sRQnObkjoo1YqNmJoIAnuRg9a3vm9KqWNgtkhEZJJ6lqt59668NDkhZnPWqKUroU9KB9+iito7mQrfdqGiikDP/Z" alt="" style="position:absolute; left:119.5px; top:168.3px; width:12px; height:16.3px;">
+  <div class="t s7 b gold" style="left:131.5px; top:175.2px;">Par téléphone</div>
+  <div class="t s6" style="left:114.1px; top:186.9px;">• Ma facture, mon contrat, mon déménagement et</div>
+  <div class="t s6" style="left:114.1px; top:197.6px;">pour toute réclamation</div>
+  <div class="t s6" style="left:114.1px; top:208.5px;">au </div>
+  <div class="t s6 gold" style="left:124.8px; top:208.5px;">09 69 39 33 02</div>
+  <div class="t sup gold" style="left:176.5px; top:207.3px;">(1)</div>
+  <div class="t s6" style="left:184.8px; top:208.5px;">(appel non surtaxé)</div>
+  <div class="t s6" style="left:114.1px; top:219.5px;">• Mon compte sur Serveur Vocal 24h/24 au</div>
+  <div class="t s6 gold" style="left:114.1px; top:230.4px;">0 800 123 333</div>
+  <div class="t s6" style="left:165.9px; top:230.4px;">(N</div>
+  <div class="t sup" style="left:174.1px; top:229.2px;">o</div>
+  <div class="t s6" style="left:177.5px; top:230.4px;"> Vart) pour payer votre</div>
+  <div class="t s6" style="left:114.1px; top:241.1px;">facture par CB et transmettre votre relevé de</div>
+  <div class="t s6" style="left:114.1px; top:252px;">compteur</div>
+  <div class="t s6 link" style="left:161.6px; top:262.9px;">N</div>
+  <div class="t sup link" style="left:167.6px; top:261.7px;">o</div>
+  <div class="t s6 link" style="left:170.8px; top:262.9px;"> client : {{edfSpecific.clientNumber}}</div>
+  <div class="t s6" style="left:114.1px; top:273.9px;">• Mes Travaux de chauffage et d’isolation</div>
+  <div class="t s6" style="left:114.1px; top:284.5px;">Au </div>
+  <div class="t s6 gold" style="left:125.9px; top:284.5px;">39 29</div>
+  <div class="t sup gold" style="left:145.1px; top:283.3px;">(1)</div>
+  <div class="t s6" style="left:153.6px; top:284.5px;">(0,05€TTC/min hors surcout éventuel</div>
+  <div class="t s6" style="left:114.1px; top:295.5px;">Salon optrateur)</div>
+  <div class="t sup" style="left:114.1px; top:305.2px;">(1)</div>
+  <div class="t s6" style="left:121.6px; top:306.4px;">du lundi au samedi de 8h a 21h</div>
+  <div class="rule" style="left:154.1px; top:324px; width:96px;"></div>
+
+  <div class="t s6" style="left:114.1px; top:328px;">Dépannage Electricité (ERDF) :</div>
+  <div class="t s6 gold" style="left:114.1px; top:338.9px;">09 726 750 56</div>
+  <div class="t s6" style="left:165.9px; top:338.9px;">(appel non surtaxé)</div>
+  <div class="rule" style="left:114.4px; top:355.3px; width:178px;"></div>
+
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAVABsDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD2LVNZNhcJCFBZxkelZcvie8ibBtl56Y71D4tVv7Qi4OAvUCsiO5mRcbC3puHSvmsVi68a0oxeh7OHw9KVNSa1Oli8RzbkFxGqhjgAHmuiUhlDEDkZrzaJnkuoywYkOO1ejxBTEhPoK7Mvr1KqfOzmxlKFNrlB4I5TmRFYj1FRmzt8Z8pfyoor0XTg3do4+ZrZii0txgiJM/SpicHAooqowjHZCu29T//Z" alt="" style="position:absolute; left:114.4px; top:359.2px; width:13.1px; height:10.4px;">
+  <div class="t s7 b gold" style="left:128px; top:360.7px; font-family:Arial, sans-serif;">Par courrier</div>
+  <div class="t s6 b" style="left:114.1px; top:371.7px; font-family:Arial, sans-serif;">EDF SERVICE CLIENTS</div>
+  <div class="t s6" style="left:203.9px; top:371.7px; font-family:Arial, sans-serif;"> TSA 20012</div>
+  <div class="t s6" style="left:114.1px; top:381.1px; font-family:Arial, sans-serif;">41975 BLOIS CEDEX 9</div>
+  <div class="rule" style="left:113.6px; top:396px; width:180px;"></div>
+
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAUABYDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD1bUddFnceWELleoFU18Ts43xwEE9qsSxxLrcjXK4B6cdahu47c3CGBMYBzgV475uY7IuNjZ0y7XULQTumGJwaKj0KMrZbWXByaK3SdjJ2uaLxRvPlkUn3FMEMQZv3a/lRRR9olbEgwvCgD6UUUVuI/9k=" alt="" style="position:absolute; left:114.4px; top:399.5px; width:10.7px; height:9.9px;">
+  <div class="t s7 b gold" style="left:126.1px; top:400.4px; font-family:Arial, sans-serif;">En boutique</div>
+  <div class="t s6" style="left:114.1px; top:411.5px; font-family:Arial, sans-serif;">La boutique la plus proche de chez vous sur :</div>
+  <div class="t s6 gold" style="left:114.1px; top:420.8px; font-family:Arial, sans-serif;">boutiques.edf.com</div>
+
+  <!-- ================= Left: contract panel ================= -->
+  <div class="panel panel--blue" style="left:96px; top:450px; width:206.8px; height:290.4px;"></div>
+
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAZABcDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD12/1my8Nacs1853N0UdTXP3PxR0wW5NtG7zdlYcUnxEtlaS0cRNNNIcKnauKTTruS9azTSibhRudQOcV6GHoUZw5pnn1q04S5YHrfh7xDa+IbFZoGxIB86HqKK5X4dwRvPdsY2hmjO1l7UVyVoRjNpHVRnKUE2avjfR9T1WK1bTABNEc5zVDwloWu2mtT3ur4O+PaGzXfL3pr/wCr/GksRJU+SwOhFz5jmPC2j3mmX+oy3ShVmkLIQeoorqO/4UVlKbk7s1jBRVkf/9k=" alt="" style="position:absolute; left:108.5px; top:465.1px; width:11.2px; height:12px;">
+  <div class="t s7 b blue" style="left:120.5px; top:467.6px;">Lieu de consummation</div>
+  <div class="t s7" style="left:105.9px; top:479.6px;">{{customer.street}}</div>
+  <div class="t s7" style="left:105.9px; top:492.4px;">{{customer.postalCode}} {{customer.city}}</div>
+
+  <div class="t s7 b blue" style="left:105.9px; top:543.1px;">Tituiaite du contrat</div>
+  <div class="t s7" style="left:105.9px; top:554.8px;">{{customer.fullName}}</div>
+
+  <div class="t s7 b blue" style="left:105.9px; top:580px;">Votre contrat</div>
+  <div class="t s7 blue" style="left:105.9px; top:592.3px;">No de client : {{edfSpecific.clientNumber}}</div>
+  <div class="t s7" style="left:105.9px; top:605.1px;">No de compte : {{edfSpecific.accountNumber}}</div>
+  <div class="t s7" style="left:105.9px; top:617.6px;">(numero a transmetre pour le regiement</div>
+  <div class="t s7" style="left:105.9px; top:630.4px;">de</div>
+  <div class="t s7" style="left:105.9px; top:643.2px;">vos factures)</div>
+  <div class="t s7 blue" style="left:152.9px; top:655.7px;">Electrico “{{edfSpecific.tariffOption}}”</div>
+  <div class="t s7" style="left:105.9px; top:668.3px;">• Point de livraison (PDL):</div>
+  <div class="t s7" style="left:105.9px; top:681.1px;">No {{edfSpecific.pdlNumber}}</div>
+  <div class="t s7" style="left:105.9px; top:693.6px;">• Puissance: {{edfSpecific.subscribedPower}}</div>
+  <div class="t s7" style="left:105.9px; top:706.4px;">• Option Heures PlanestHaures Caurres</div>
+  <div class="t s7" style="left:105.9px; top:718.9px;">22H30-6H30</div>
+
+  <!-- ================= Left: informations ================= -->
+  <div class="t s8 b gold" style="left:104px; top:749px;">INFORMATIONS</div>
+  <div class="t s8 b gold" style="left:104px; top:777px;">Prix et Reglamentation</div>
+  <div class="t s8" style="left:104px; top:790.5px;">Electricité : Suite aux desicicions des pouvars</div>
+  <div class="t s8" style="left:104px; top:805px;">Publics, le CSPE invoicio au {{billing.issueDate}} et le</div>
+  <div class="t s8" style="left:104px; top:819.6px;">tarif réglamenté au {{billing.issueDate}}, Plus</div>
+  <div class="t s8" style="left:104px; top:834px;">D’informacion sur http:/particuliers.edf.com</div>
+  <div class="t s8 b gold" style="left:104px; top:862.8px;">Votro facture évolue</div>
+  <div class="t s8" style="left:104px; top:876.7px;">Pour plus d’informations, conectez-vous sur</div>
+  <div class="t s8" style="left:104px; top:891.3px;">Facture edf.com</div>
+
+  <!-- ================= Invoice summary ================= -->
+  <div class="panel panel--blue" style="left:313.1px; top:327.3px; width:325.7px; height:195.7px;"></div>
+
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/4QCaRXhpZgAATU0AKgAAAAgAAgESAAMAAAABAAEAAIdpAAQAAAABAAAAJgAAAAAAAZKGAAcAAABaAAAAOAAAAABVTklDT0RFAABPAHAAdABpAG0AaQB6AGUAZAAgAGIAeQAgAEoAUABFAEcAbQBpAG4AaQAgADMALgAxADIALgAwAC4AMgAgADAAeAA2ADcAZgA3ADkAMABjAGT/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAXABgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD1bWdR1Y+I7XR9KktoN9u07yzRluAcYxT/ALF4t/6C+n/+Ap/xrA8YKH8cacv77ebN9nlb87stjOz5sfSs1ZxJZoFudZV31AQbjJMMKZMYz937vHrmu6NP3E1+RxSqe80/zOu0jUdYTxPPo+qS20+LYXEcsKFf4tuCCaKyfD0MUPxBujAt0qPp4bbcuWcfOB1Yk9qK566Slob0W3F3NnX/AAvJq2p29/BdpDJFE0LpJFvV1PryPWstvBertHt/tuEMJfN3i1+bO7fj73TdzRRRGvOKsgdGEm2zX0jw9d2mt3Gr6hqIu7mWEQjbCEVVBz6+1FFFZyk5u7NIxUFZH//Z" alt="" style="position:absolute; left:321.2px; top:338.4px; width:25.3px; height:25.6px;">
+  <div class="t s8 b" style="left:359.3px; top:337.3px; color:#0a59f6;">Votre facture du {{billing.issueDate}} N” {{billing.invoiceNumber}}</div>
+  <div class="t s8" style="left:328.9px; top:367.2px;">Période du {{billing.periodStart}} au {{billing.periodEnd}}</div>
+  <div class="t s8" style="left:650px; top:367.2px; color:#0a59f6;">Detals su verso</div>
+
+  <!-- Band A: electricity line -->
+  <div class="band" style="top:385.7px; height:43.5px;"></div>
+  <div class="t s8" style="left:328.9px; top:385.6px; color:#0745c1;">Electricité “{{edfSpecific.tariffOption}}”</div>
+  <div class="t s8" style="left:328.9px; top:400px;">Consumeracion sur index {{edfV2.readingLabel}}</div>
+  <div class="t s8 b" style="left:579.2px; top:400.8px; color:#0a59f6;">{{edfV2.totalHT}}</div>
+  <div class="t s8" style="left:328.9px; top:414.7px;">Abonoment et taxes</div>
+
+  <!-- Band B: total excl. VAT -->
+  <div class="band" style="top:432.9px; height:26.7px;"></div>
+  <div class="t s8" style="left:328.9px; top:438.9px; color:#0745c1;">Total Hors TVA</div>
+  <div class="t s8 b" style="left:578px; top:439.7px; color:#0a59f6;">{{edfV2.totalHT}}</div>
+
+  <!-- Band C: VAT -->
+  <div class="band" style="top:463.3px; height:22.4px;"></div>
+  <div class="t s8" style="left:328.1px; top:467.3px; font-style:italic;">TVA</div>
+  <div class="t s8" style="left:578px; top:467.3px; font-style:italic;">{{edfV2.vatAmount}}</div>
+
+  <!-- Band D: direct-debit deduction -->
+  <div class="band" style="top:489.7px; height:31.2px;"></div>
+  <div class="t s8" style="left:328.9px; top:498px; color:#0745c1;">Déduction des prélevements effectués</div>
+  <div class="t s8 b" style="left:573.3px; top:498.8px; color:#0a59f6;">{{edfV2.deduction}}</div>
+
+  <!-- Blue total panel -->
+  <div class="totalPanel">
+    <div style="margin-top:39.9px;">Total TTC</div>
+    <div style="margin-top:0.9px;">{{edfV2.totalTTC}}</div>
+    <div style="margin-top:13.9px;">Prelevé le</div>
+    <div style="margin-top:0.9px;">{{billing.dueDate}}</div>
+  </div>
+
+  <div class="t s8 b" style="left:328.9px; top:524.9px; color:#0a59f6;">Prochaine facture vers le {{edfV2.nextInvoiceDate}} – Prochain relevé vers le {{edfV2.nextReadingDate}}</div>
+
+  <!-- ================= Payment terms ================= -->
+  <div class="panel panel--blue" style="left:325.6px; top:830.1px; width:417.5px; height:171.9px;"></div>
+
+  <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAeACEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3O4uI7aFpZSqxxgsxJ7V5hrXxOuJblodIiDRZx5hHU+1bXxOv3t9DSFN371vvjt7GuZ8D6RZvY3WqSsryRjCI68J712UaS5ednm4mtJS5Ux1t8R9as5h9vt/3IYD7hDGvTdE1611yxW6tWyv8QPVT6V4n4jvJ5HEc179p+bIKx7NntW98L72WPWJrIMfJkXzCp7Gt6+Hi6fPExoYmSqcsj177R/s0UmW/55D86K83lPT5zi/iZp0l5oCvErF43HC+h615nomv3Gg3UjLG0ts3ySROODX0BLEs8TRuBg8VwWseBbJ59+FIJJBOQV+ld2GrLk5GcGKw75+dHnOt6hpd9EpsbRoXZ8uS5I/Cuo+GWnztrE16yEIkYTmr+n+CLY3W9RGpB+9gkmvQNJ0u3061WOBQM/eOOta166UORGeHw158zL+2in+WPWivNuen7NH/2Q==" alt="" style="position:absolute; left:378.9px; top:835.7px; width:16px; height:14.7px;">
+  <div class="t s8 b" style="left:400.9px; top:839.3px; color:#3266ff;">MODALITÉS DE PAIEMENT : PRELEVEMENT AUTOMATIQUE</div>
+  <div class="t s7" style="left:326.3px; top:853.3px;"> Conformément a votre contrat et aux conditions particulienes de vente de faffre que voua aveix</div>
+  <div class="t s7" style="left:326.3px; top:866.1px;"> Sousorite, le montarit de {{edfV2.totalTTC}} sera perifiere le {{billing.dueDate}} our le compte don’t les coordonées</div>
+  <div class="t s7" style="left:326.3px; top:878.7px;">figurend cl-classicues :</div>
+
+  <div class="t s7" style="left:436.1px; top:913.3px;">Titulaine du comple : {{customer.fullName}}</div>
+  <div class="t s7" style="left:436.1px; top:925.9px;"> Nom de la banque : ***********</div>
+  <div class="t s7" style="left:436.1px; top:938.7px;">Compte bancaire : ***** ***** 000000000000 **</div>
+  <div class="t s7" style="left:436.1px; top:951.2px;">Redérence Unique de Mandei : ++ MM000000000000000</div>
+
+</div>
+</body>
+</html>

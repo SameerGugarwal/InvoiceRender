@@ -7,6 +7,7 @@ const __dirname = path.dirname(__filename);
 
 export const TEMPLATE_FILES = {
   edf: 'EDF Electricity Bill.html',
+  edf_v2: 'EDF Electricity Bill V2.html',
   kenya_power: 'Kenya Power Bill.html',
   nicosia: 'nicosia_water_bill.html',
 };

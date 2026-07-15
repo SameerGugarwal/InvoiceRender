@@ -40,7 +40,10 @@ function buildPayload(flatPayload) {
     },
     kenyaSpecific: {
       accountNumber: flatPayload.kp_account_number,
-      tariff: flatPayload.kp_tariff
+      tariff: flatPayload.kp_tariff,
+      maxAuthorizedLoad: flatPayload.kp_load,
+      email: flatPayload.kp_email,
+      consumptionHistory: flatPayload.kp_history
     },
     nicosiaSpecific: {
       accountRef: flatPayload.nic_account_ref,

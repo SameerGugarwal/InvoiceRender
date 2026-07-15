@@ -1,7 +1,7 @@
 import './style.css';
-import { appState, subscribe, updateState, getState, markHardReload } from './state/store.js';
+import { appState, subscribe, updateState, updateStateBulk, getState, markHardReload, refreshAutoDates } from './state/store.js';
 import { initGlobalForm, updateGenerateButton } from './components/globalForm.js';
-import { initTemplateCards, updateTemplateCardSelection } from './components/templateCard.js';
+import { initTemplateCards, updateTemplateCardSelection, writeFields } from './components/templateCard.js';
 import { updateDynamicFormVisibility } from './components/dynamicForm.js';
 import { initPreviewModal } from './components/previewModal.js';
 import { validateAll } from './services/validator.js';
@@ -22,6 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initGlobalForm();
   initTemplateCards();
   initPreviewModal();
+
+  // A form filled on an earlier day still holds that day's dates. Roll them
+  // forward before anything renders, so what the user sees is what generates.
+  const staleDates = refreshAutoDates();
+  if (staleDates) updateStateBulk(staleDates);
 
   // Restore state to UI from localStorage
   Object.keys(appState).forEach(key => {
@@ -59,6 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hide previous errors
     errorContainer.classList.add('hidden');
     errorList.innerHTML = '';
+
+    // Catch a tab left open past midnight: re-date before validating so the PDF
+    // and the form on screen agree.
+    const rolled = refreshAutoDates();
+    if (rolled) {
+      updateStateBulk(rolled);
+      writeFields(rolled);
+    }
 
     // Validate
     const errors = validateAll();

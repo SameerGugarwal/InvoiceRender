@@ -2,6 +2,7 @@ import { generatePDF } from '../services/puppeteerService.js';
 import { TEMPLATE_FILES, getRawTemplateHTML } from '../services/templateService.js';
 import { validatePayload } from '../services/validationService.js';
 import { injectEDF } from '../services/templates/edfInjector.js';
+import { injectEDFv2 } from '../services/templates/edfV2Injector.js';
 import { injectKenyaPower } from '../services/templates/kenyaInjector.js';
 import { injectNicosia } from '../services/templates/nicosiaInjector.js';
 
@@ -31,6 +32,9 @@ export const handleGeneratePdf = async (req, res, next) => {
     switch (payload.template_type) {
       case 'edf':
         htmlContent = injectEDF(payload);
+        break;
+      case 'edf_v2':
+        htmlContent = injectEDFv2(payload);
         break;
       case 'kenya_power':
         htmlContent = injectKenyaPower(payload);
@@ -78,6 +82,7 @@ export const handlePreviewHtml = async (req, res, next) => {
     let htmlContent;
     switch (payload.template_type) {
       case 'edf': htmlContent = injectEDF(payload); break;
+      case 'edf_v2': htmlContent = injectEDFv2(payload); break;
       case 'kenya_power': htmlContent = injectKenyaPower(payload); break;
       case 'nicosia': htmlContent = injectNicosia(payload); break;
       default: throw new Error('No injector');
