@@ -1,4 +1,4 @@
-export function updateDynamicFormVisibility(appState) {
+export function updateDynamicFormVisibility(appState, shouldScroll = false) {
   const templateType = appState.template_type;
   if (!templateType) return;
 
@@ -24,9 +24,12 @@ export function updateDynamicFormVisibility(appState) {
     if (nicosiaSection) nicosiaSection.classList.add('visible');
   }
 
-  // Smooth scroll to conditional section
-  setTimeout(() => {
-    const targetSection = templateType === 'edf' ? edfSection : meterSection;
-    if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 350);
+  // Smooth scroll to conditional section — only when the template actually
+  // changed (i.e. a card was clicked), never on every keystroke.
+  if (shouldScroll) {
+    setTimeout(() => {
+      const targetSection = templateType === 'edf' ? edfSection : meterSection;
+      if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 350);
+  }
 }

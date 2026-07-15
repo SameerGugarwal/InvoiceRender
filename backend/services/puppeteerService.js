@@ -42,10 +42,15 @@ export async function generatePDF(dynamicHtml) {
       dynamicHtml = dynamicHtml.replace('<HEAD>', `<HEAD>\n<base href="${baseHref}">`);
     }
 
-    // 2. Pass dynamic HTML directly to Puppeteer
+    // 2. Pass dynamic HTML directly to Puppeteer.
+    // Use 'domcontentloaded' rather than 'networkidle0': every real image is
+    // either inline base64 or a local file, so there is no network to idle on.
+    // 'networkidle0' would stall for the full timeout on any never-settling
+    // request (e.g. an empty <img src=""> resolving against the file:// base),
+    // which is what caused "Navigation timeout of 30000 ms exceeded".
     await page.setContent(dynamicHtml, {
-      waitUntil: 'networkidle0',
-      timeout: 30000,
+      waitUntil: 'domcontentloaded',
+      timeout: 60000,
     });
 
     // Wait for the bundle to unpack (our injected script will do the text replacement)

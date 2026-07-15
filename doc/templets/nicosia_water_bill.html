@@ -390,8 +390,8 @@
             </div>
 
            
-            <img src="{{apostille.stampImage}}"
-                style="position: absolute; left: 10px; bottom: -30px; width: 130px; opacity: 0.75;">
+            {{#if apostille.stampImage}}<img src="{{apostille.stampImage}}"
+                style="position: absolute; left: 10px; bottom: -30px; width: 130px; opacity: 0.75;">{{/if}}
 
           
             <div style="position: absolute; left: 430px; top: 610px;">
@@ -399,7 +399,7 @@
             </div>
 
            
-            <img src="{{apostille.signatureImage}}" style="position: absolute; left: 540px; top: 630px; width: 90px;">
+            {{#if apostille.signatureImage}}<img src="{{apostille.signatureImage}}" style="position: absolute; left: 540px; top: 630px; width: 90px;">{{/if}}
 
             
             <div
@@ -486,16 +486,16 @@
 
 
 
-            <img src="{{certificate.signatureImage}}"
-                style="position: absolute; left: 35px; bottom: 120px; width: 110px; z-index: 3;">
+            {{#if certificate.signatureImage}}<img src="{{certificate.signatureImage}}"
+                style="position: absolute; left: 35px; bottom: 120px; width: 110px; z-index: 3;">{{/if}}
 
 
-            <img src="{{certificate.circularStamp}}"
-                style="position: absolute; left: 115px; bottom: 80px; width: 180px; opacity: 0.72; transform: rotate(-8deg); z-index: 2;">
+            {{#if certificate.circularStamp}}<img src="{{certificate.circularStamp}}"
+                style="position: absolute; left: 115px; bottom: 80px; width: 180px; opacity: 0.72; transform: rotate(-8deg); z-index: 2;">{{/if}}
 
 
-            <img src="{{certificate.companySeal}}"
-                style="position: absolute; left: 360px; bottom: 115px; width: 270px; opacity: 0.92; transform: rotate(-5deg); z-index: 2;">
+            {{#if certificate.companySeal}}<img src="{{certificate.companySeal}}"
+                style="position: absolute; left: 360px; bottom: 115px; width: 270px; opacity: 0.92; transform: rotate(-5deg); z-index: 2;">{{/if}}
 
             Date Block -->
     <!-- <div

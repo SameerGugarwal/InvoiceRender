@@ -28,10 +28,15 @@ document.addEventListener('DOMContentLoaded', () => {
   updateDynamicFormVisibility(appState);
   updateGenerateButton(appState);
 
-  // Subscribe components to state changes
+  // Subscribe components to state changes. Only scroll to the conditional
+  // section when the selected template actually changes — otherwise every
+  // keystroke would yank the page back up/down to that section.
+  let lastTemplateType = appState.template_type;
   subscribe((state) => {
+    const templateChanged = state.template_type !== lastTemplateType;
+    lastTemplateType = state.template_type;
     updateTemplateCardSelection(state);
-    updateDynamicFormVisibility(state);
+    updateDynamicFormVisibility(state, templateChanged);
     updateGenerateButton(state);
   });
 
