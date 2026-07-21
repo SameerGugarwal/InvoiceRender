@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 const allowedOrigins = [
   'http://localhost:5173', // Local frontend
-  'https://invoicerender-frontend.onrender.com' // Live frontend URL
+  'https://invoicerender-frontend.onrender.com/' // Live frontend URL
 ];
 
 app.use(cors({

@@ -1,4 +1,8 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://invoicerender.onrender.com');
+// Strip any trailing slash(es) so `${BASE_URL}/api/...` can never produce a
+// double slash (e.g. a VITE_API_BASE_URL of ".../" would yield "...//api/...",
+// which the backend returns 404 for).
+const RAW_BASE_URL = import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:3000' : 'https://invoicerender.onrender.com');
+const BASE_URL = RAW_BASE_URL.replace(/\/+$/, '');
 
 function buildPayload(flatPayload) {
   return {
